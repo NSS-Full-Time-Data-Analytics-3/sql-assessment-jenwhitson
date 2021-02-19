@@ -159,75 +159,7 @@ FROM grade5;
 
 
 --no. 5
-WITH counte1 AS (SELECT COUNT(*) as count1, 
-				 pe.emotion_id as emotion_id,
-				 a.grade_id as grade_id
-				 FROM poem_emotion as pe INNER JOIN poem as p
-									ON pe.poem_id = p.id
-									INNER JOIN author as a
-									ON p.author_id = a.id
-				WHERE a.name ilike '%emily%'
-				AND pe.emotion_id = 1
-				GROUP BY a.grade_id, pe.emotion_id),
-counte2 AS (SELECT COUNT(*) as count2, 
-				 pe.emotion_id as emotion_id,
-				 a.grade_id as grade_id
-				 FROM poem_emotion as pe INNER JOIN poem as p
-									ON pe.poem_id = p.id
-									INNER JOIN author as a
-									ON p.author_id = a.id
-				WHERE a.name ilike '%emily%'
-				AND pe.emotion_id = 2
-				GROUP BY a.grade_id, pe.emotion_id),
-counte3 AS (SELECT COUNT(*) as count3, 
-				 pe.emotion_id as emotion_id, 
-				 a.grade_id as grade_id
-				 FROM poem_emotion as pe INNER JOIN poem as p
-									ON pe.poem_id = p.id
-									INNER JOIN author as a
-									ON p.author_id = a.id
-				WHERE a.name ilike '%emily%'
-				AND pe.emotion_id = 3
-				GROUP BY a.grade_id, pe.emotion_id),
-counte4 AS (SELECT COUNT(*) as count4, 
-				 pe.emotion_id as emotion_id,
-				 a.grade_id as grade_id
-				 FROM poem_emotion as pe INNER JOIN poem as p
-									ON pe.poem_id = p.id
-									INNER JOIN author as a
-									ON p.author_id = a.id
-				WHERE a.name ilike '%emily%'
-				AND pe.emotion_id = 4
-				GROUP BY a.grade_id, pe.emotion_id)
-SELECT a.grade_id,
-	COUNT(a.id) as count_emilys,
-	ROUND(AVG(pe.intensity_percent), 2) as avg_intensity,
-	e.name
--- 	(SELECT COUNT(*) FROM poem_emotion WHERE emotion_id = 1) as count_anger,
--- 	(SELECT COUNT(*) FROM poem_emotion WHERE emotion_id = 2) as count_fear,
--- 	(SELECT COUNT(*) FROM poem_emotion WHERE emotion_id = 3) as count_sadness,
--- 	(SELECT COUNT(*) FROM poem_emotion WHERE emotion_id = 4) as count_joy
-FROM author as a INNER JOIN poem as p
-						ON a.id = p.author_id
-					INNER JOIN poem_emotion as pe
-						ON p.id = pe.poem_id
-					INNER JOIN emotion as e
-						ON e.id = pe.emotion_id
--- 					INNER JOIN counte1 as ce1
--- 						ON ce1.emotion_id = pe.emotion_id AND ce1.grade_id = a.grade_id
--- 					INNER JOIN counte2 as ce2
--- 						ON ce2.emotion_id = pe.emotion_id AND ce2.grade_id = a.grade_id
--- 					INNER JOIN counte3 as ce3
--- 						ON ce3.emotion_id = pe.emotion_id AND ce3.grade_id = a.grade_id
--- 					INNER JOIN counte4 as ce4
--- 						ON ce4.emotion_id = pe.emotion_id AND ce4.grade_id = a.grade_id
-WHERE a.name ilike '%emily%'
-GROUP BY GROUPING SETS (a.grade_id, e.name);
-
-
-
-
---trying again
+--aggregating data on count of emilys, average intensity, and count of each emotion.
 WITH counte1 AS (SELECT COUNT(*) as count1, 
 				 a.grade_id as grade_id
 				 FROM poem_emotion as pe INNER JOIN poem as p
@@ -237,15 +169,18 @@ WITH counte1 AS (SELECT COUNT(*) as count1,
 				WHERE a.name ilike '%emily%'
 				AND pe.emotion_id = 1
 				GROUP BY a.grade_id),
-counte2 AS (SELECT COUNT(*) as count2, 
-				 a.grade_id as grade_id
+counte2 AS (SELECT a.grade_id as grade_id,
+				COUNT(*) as count2				 
 			 FROM poem_emotion as pe INNER JOIN poem as p
 								ON pe.poem_id = p.id
 								INNER JOIN author as a
 								ON p.author_id = a.id
 			WHERE a.name ilike '%emily%'
 			AND pe.emotion_id = 2
-			GROUP BY a.grade_id),
+			GROUP BY a.grade_id
+		   UNION ALL
+		   SELECT 1, 0
+		   ORDER BY grade_id),
 counte3 AS (SELECT COUNT(*) as count3, 
 				 a.grade_id as grade_id
 				 FROM poem_emotion as pe INNER JOIN poem as p
@@ -287,3 +222,22 @@ FROM author as a INNER JOIN poem as p
 						ON ce4.grade_id = a.grade_id
 WHERE a.name ilike '%emily%'
 GROUP BY a.grade_id;
+
+
+--pulled all relevant data on all emilys. way easier, can't believe i didn't think of this an hour ago.
+SELECT p.id as poem_id,
+	a.name as name,
+	a.id as author_id,
+	a.grade_id as grade_id,
+	p.text as poem_text,
+	p.char_count as char_count,
+	pe.intensity_percent as intensity_percent,
+	e.name as emotion
+FROM author as a INNER JOIN poem as p
+						ON a.id = p.author_id
+					INNER JOIN poem_emotion as pe
+						ON p.id = pe.poem_id
+					INNER JOIN emotion as e
+						ON e.id = pe.emotion_id
+WHERE a.name ilike '%emily%';
+

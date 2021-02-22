@@ -224,22 +224,3 @@ FROM author as a INNER JOIN poem as p
 						ON ce4.grade_id = a.grade_id
 WHERE a.name ilike '%emily%'
 GROUP BY a.grade_id;
-
-
---pulled all relevant data on all emilys. way easier, can't believe i didn't think of this an hour ago.
-SELECT p.id as poem_id,
-	a.name as name,
-	a.id as author_id,
-	a.grade_id as grade_id,
-	p.text as poem_text,
-	p.char_count as char_count,
-	pe.intensity_percent as intensity_percent,
-	e.name as emotion
-FROM author as a INNER JOIN poem as p
-						ON a.id = p.author_id
-					INNER JOIN poem_emotion as pe
-						ON p.id = pe.poem_id
-					INNER JOIN emotion as e
-						ON e.id = pe.emotion_id
-WHERE a.name ilike '%emily%';
-

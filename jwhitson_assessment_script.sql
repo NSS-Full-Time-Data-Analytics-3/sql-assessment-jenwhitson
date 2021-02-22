@@ -200,7 +200,9 @@ counte4 AS (SELECT COUNT(*) as count4,
 				AND pe.emotion_id = 4
 				GROUP BY a.grade_id)
 SELECT a.grade_id,
-	COUNT(a.id) as count_emilys,
+	COUNT(DISTINCT(a.id)) as count_emilys,
+	COUNT(p.id) as count_emily_poems,
+	ROUND(AVG(p.char_count), 2) as avg_char_count,
 	ROUND(AVG(pe.intensity_percent), 2) as avg_intensity,
  	MIN(ce1.count1) as count_anger,
 	MIN(ce2.count2) as count_fear,
